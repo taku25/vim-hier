@@ -61,12 +61,10 @@ function! s:PreHier(type) "{{{
         return
     endif
 
-    echo a:type
 
     let l:highlight_group = g:hier_highlights[a:type]
 
     for l:loc in keys(l:highlight_group)
-        echo l:loc
         if has_key(s:hier_hightlight_link_target, l:loc) == 0
             continue
         endif
@@ -80,7 +78,6 @@ function! s:PreHier(type) "{{{
             endif
     
             let l:temp = l:link_target[l:key]." ".l:link_hightlight[l:key]
-            echo l:temp
             exec "hi! link ".l:temp
         endfor
     endfor
