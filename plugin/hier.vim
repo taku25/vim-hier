@@ -3,10 +3,10 @@
 " Author:		Jan Christoph Ebersbach <jceb@e-jc.de>
 " Version:		1.3
 
-" if (exists("g:loaded_hier") && g:loaded_hier) || &cp
-"     finish
-" endif
-" let g:loaded_hier = 1
+if (exists("g:loaded_hier") && g:loaded_hier) || &cp
+    finish
+endif
+let g:loaded_hier = 1
 
 let g:hier_enabled = ! exists('g:hier_enabled') ? 1 : g:hier_enabled
 
