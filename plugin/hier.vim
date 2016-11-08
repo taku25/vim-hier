@@ -52,8 +52,6 @@ augroup HierGroup
 augroup END
 
 
-call s:PreHier("grep")
-
 function! s:PreHier(type) "{{{
     call s:Clear()
     let l:exit = has_key(g:hier_highlights, a:type)
