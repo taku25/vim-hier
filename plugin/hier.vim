@@ -45,13 +45,13 @@ let s:hier_hightlight_link_target = {
                                     \ }
 
 
-
 function! s:PreHier(type) "{{{
     call s:Clear()
     let l:exit = has_key(g:hier_highlights, a:type)
     if l:exit == 0
         return
     endif
+
 
 
     let l:highlight_group = g:hier_highlights[a:type]
@@ -96,6 +96,7 @@ function! s:Clear()
 endfunction
 
 function! s:Hier()
+
     if g:hier_enabled == 0
         return
     endif
@@ -129,16 +130,9 @@ command! -nargs=0 HierClear call s:Clear()
 command! -nargs=0 HierStart let g:hier_enabled = 1 | call s:Hier()
 command! -nargs=0 HierStop let g:hier_enabled = 0 | call s:Clear()
 
-" function! s:Initialize ()
-"     call s:PreHier("make")
-"     call s:PreHier("qmake")
-" endfunction
-
-" call s:Initialize()
-
 augroup HierGroup
     au!
-    au QuickFixCmdPre, *make :call s:PreHier("make")
+    au QuickFixCmdPre, * :call s:PreHier("make")
     au QuickFixCmdPre, *grep* :call s:PreHier("grep")
 	au QuickFixCmdPost,BufEnter,WinEnter * :HierUpdate
 augroup END
