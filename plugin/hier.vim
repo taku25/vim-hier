@@ -44,12 +44,6 @@ let s:hier_hightlight_link_target = {
                                     \   },
                                     \ }
 
-augroup HierGroup
-    au!
-    au QuickFixCmdPre, *make call s:PreHier("make")
-    au QuickFixCmdPre, *grep* call s:PreHier("grep")
-	au QuickFixCmdPost,BufEnter,WinEnter * :HierUpdate
-augroup END
 
 
 function! s:PreHier(type) "{{{
@@ -80,6 +74,7 @@ function! s:PreHier(type) "{{{
         endfor
     endfor
 endfunction "}}}
+
 
 
 function! s:Getlist(type)
@@ -131,7 +126,19 @@ endfunction
 command! -nargs=0 HierUpdate call s:Hier()
 command! -nargs=0 HierClear call s:Clear()
 
-
 command! -nargs=0 HierStart let g:hier_enabled = 1 | call s:Hier()
 command! -nargs=0 HierStop let g:hier_enabled = 0 | call s:Clear()
 
+" function! s:Initialize ()
+"     call s:PreHier("make")
+"     call s:PreHier("qmake")
+" endfunction
+
+" call s:Initialize()
+
+augroup HierGroup
+    au!
+    au QuickFixCmdPre, *make :call s:PreHier("make")
+    au QuickFixCmdPre, *grep* :call s:PreHier("grep")
+	au QuickFixCmdPost,BufEnter,WinEnter * :HierUpdate
+augroup END
