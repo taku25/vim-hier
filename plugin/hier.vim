@@ -3,34 +3,16 @@
 " Author:		Jan Christoph Ebersbach <jceb@e-jc.de>
 " Version:		1.3
 
-if (exists("g:loaded_hier") && g:loaded_hier) || &cp
-    finish
+if exists('g:loaded_hier')
+  finish
 endif
 let g:loaded_hier = 1
 
+let s:save_cpo = &cpo
+set cpo&vim
+
 let g:hier_enabled = ! exists('g:hier_enabled') ? 1 : g:hier_enabled
 
-let g:hier_highlights = exists('g:hier_highlights') ? g:hier_highlights : {
-                                                                            \"make" : {
-                                                                            \   'qf' : {
-                                                                            \       "error" : "SpellBad",
-                                                                            \       "warning" : "SpellLocal",
-                                                                            \       "info" : "SpellRare",
-                                                                            \   },
-                                                                            \   'loc' : {
-                                                                            \       "error" : "SpellBad",
-                                                                            \       "warning" : "SpellLocal",
-                                                                            \       "info" : "SpellRare",
-                                                                            \   },
-                                                                            \},
-                                                                            \"grep" : {
-                                                                            \   'qf' : {
-                                                                            \       "error" : "Search",
-                                                                            \       "warning" : "Search",
-                                                                            \       "info" : "Search",
-                                                                            \   },
-                                                                            \},
-                                                                            \}
 let s:hier_hightlight_link_target = {
                                     \   'qf' : {
                                     \       "error" : "QFError",
@@ -45,16 +27,35 @@ let s:hier_hightlight_link_target = {
                                     \ }
 
 
-function! s:PreHier(type) "{{{
-    call s:Clear()
-    let l:exit = has_key(g:hier_highlights, a:type)
-    if l:exit == 0
-        return
+function! s:GetMargeHierHighlights(type)
+    let highlights = g:hier#default_highlights
+
+
+	if !exists("g:hier_highlights")
+		let g:hier_highlights = {}
+	endif
+
+    if has_key(g:hier_highlights, a:type) == 0
+        return highlights
     endif
 
+    for l:qickType in ['qf', 'loc']
+        if has_key(g:hier_highlights[a:type], l:qickType) == 0
+            continue
+        endif
+        call extend(highlights[a:type][l:qickType], g:hier_highlights[a:type][l:qickType])
+    endfor
 
+    return highlights
 
-    let l:highlight_group = g:hier_highlights[a:type]
+endfunction
+
+function! s:PreHier(type) "{{{
+    call s:Clear()
+
+    let l:config = s:GetMargeHierHighlights(a:type)
+
+    let l:highlight_group = l:config[a:type]
 
     for l:loc in keys(l:highlight_group)
         if has_key(s:hier_hightlight_link_target, l:loc) == 0
@@ -130,9 +131,16 @@ command! -nargs=0 HierClear call s:Clear()
 command! -nargs=0 HierStart let g:hier_enabled = 1 | call s:Hier()
 command! -nargs=0 HierStop let g:hier_enabled = 0 | call s:Clear()
 
+"*grep*
+"とそれ以外をしていしたいのだけどやりかたがわからず
+"現状はgrep時に二度よばれてます...
 augroup HierGroup
     au!
     au QuickFixCmdPre, * :call s:PreHier("make")
     au QuickFixCmdPre, *grep* :call s:PreHier("grep")
 	au QuickFixCmdPost,BufEnter,WinEnter * :HierUpdate
 augroup END
+
+
+let &cpo = s:save_cpo
+unlet s:save_cpo
