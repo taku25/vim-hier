@@ -101,28 +101,32 @@ function! s:Hier()
     if g:hier_enabled == 0
         return
     endif
+    
+    try
+        let bufnr = bufnr('%')
+        for type in ['qf', 'loc']
+            for i in s:Getlist(type)
+                if i.bufnr == bufnr
+                    let l:key = "error"
+                    if i.type == 'I' || i.type == 'info'
+                        let l:key = 'info'
+                    elseif i.type == 'W' || i.type == 'warning'
+                        let l:key = 'warning'
+                    endif
 
-    let bufnr = bufnr('%')
-    for type in ['qf', 'loc']
-        for i in s:Getlist(type)
-            if i.bufnr == bufnr
-                let l:key = "error"
-                if i.type == 'I' || i.type == 'info'
-                    let l:key = 'info'
-                elseif i.type == 'W' || i.type == 'warning'
-                    let l:key = 'warning'
+                    let hi_group = s:hier_hightlight_link_target[type][l:key]
+                    if i.lnum > 0
+                        call matchadd(hi_group, '\%'.i.lnum.'l')
+                    elseif i.pattern != ''
+                        call matchadd(hi_group, i.pattern)
+                    endif
                 endif
-
-                let hi_group = s:hier_hightlight_link_target[type][l:key]
-
-                if i.lnum > 0
-                    call matchadd(hi_group, '\%'.i.lnum.'l')
-                elseif i.pattern != ''
-                    call matchadd(hi_group, i.pattern)
-                endif
-            endif
+            endfor
         endfor
-    endfor
+    catch
+
+    endtry
+
 endfunction
 
 command! -nargs=0 HierUpdate call s:Hier()
